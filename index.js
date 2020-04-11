@@ -28,13 +28,22 @@ async function queryGithub(query, variables, githubToken) {
 
   async function getIssueData(repositoryOwner, repositoryName, issueNumber, githubToken) {
     const issueQuery = `
-        query($owner:String!, $name:String!, $number:Int!){
-            repository(owner: $owner, name: $name) {
-                issue(number:$number) {
-                    id, state, title
+      query($owner:String!, $name:String!, $number:Int!){
+          repository(owner: $owner, name: $name) {
+              issue(number:$number) {
+                id
+                state
+                title
+                projectCards {
+                  nodes {
+                    project {
+                      number
+                    }
+                  }
                 }
-            }
-        }`;
+              }
+          }
+      }`;
 
     const parameters = {
         owner: repositoryOwner,
@@ -173,6 +182,7 @@ async function queryGithub(query, variables, githubToken) {
         const repositoryOwner = repository.split('/')[0];
         const repositoryName = repository.split('/')[1];
         const targetProject = core.getInput('targetProject');
+        const validationProject = core.getInput('validationProject');
         const newIssueSuffix = core.getInput('newIssueSuffix');
         const assigneesInput = core.getInput('assignees').split(',');
         const labelsInput = core.getInput('labels').split(',');
@@ -199,6 +209,12 @@ async function queryGithub(query, variables, githubToken) {
 
         if (issueData.state.toLowerCase() != 'closed') {
             console.log(`Issue ${issueNumber} not closed! Issue state is ${issueData.state}`);
+            return;
+        }
+
+        if (!issueData.projectCards.nodes.length 
+          || !(issueData.projectCards.nodes.find(x=> x.number == parseInt(validationProject)))) {
+            console.log(`Issue ${issueNumber} is not associated with validation project ${validationProject}`);
             return;
         }
 
