@@ -214,7 +214,7 @@ async function queryGithub(query, variables, githubToken) {
         }
 
         if (!issueData.projectCards.nodes.length 
-          || !(issueData.projectCards.nodes.find(x=> x.number == parseInt(validationProject)))) {
+          || !(issueData.projectCards.nodes.find(x=> x.project.number == parseInt(validationProject)))) {
             console.log(`Issue ${issueNumber} is not associated with validation project ${validationProject}`);
             return;
         }
