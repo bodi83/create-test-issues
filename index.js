@@ -123,10 +123,11 @@ async function queryGithub(query, variables, githubToken) {
     return response['data']['repository']['id'];
   }
 
-  async function createIssue(assigneeIds, labelIds, repositoryId, projectId, title, githubToken) {
+  async function createIssue(assigneeIds, labelIds, repositoryId, projectId, title, githubToken,
+    body) {
     const createIssueInput = {
       assigneeIds: assigneeIds,
-      body: 'Test this',
+      body: body,
       clientMutationId: null,
       labelIds: labelIds,
       milestoneId: null,
@@ -258,8 +259,10 @@ async function queryGithub(query, variables, githubToken) {
 
         console.log('Before create issue');
 
+        const body = `A new issue has been completed, #${issueNumber}. Please test it.`
+
         await createIssue(assigneeIds, labelIds, repositoryId, targetProjectId, 
-            newIssueTitle, githubToken);
+            newIssueTitle, githubToken, body);
 
         console.log(`Done!`);
     } catch (error) {
